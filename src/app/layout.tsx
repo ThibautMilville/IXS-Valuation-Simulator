@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
           return `${scheme}://${hostRaw}`;
         })()
       : getPublicSiteUrl();
-  const ogImageUrl = `${base}/api/og`;
+  const ogImageUrl = `${base}/og.png`;
   const userAgent = h.get("user-agent") ?? "";
 
   console.log("[ixs:metadata]", {
@@ -64,6 +64,7 @@ export async function generateMetadata(): Promise<Metadata> {
           width: 1200,
           height: 630,
           alt: "IXS Valuation Simulator",
+          type: "image/png",
         },
       ],
     },
@@ -71,7 +72,15 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: "IXS Valuation Simulator",
       description: siteDescription,
-      images: [ogImageUrl],
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: "IXS Valuation Simulator",
+          type: "image/png",
+        },
+      ],
     },
   };
 }
