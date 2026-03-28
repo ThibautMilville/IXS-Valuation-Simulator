@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import { FallingAsh } from "@/components/ui/FallingAsh";
-import { absoluteUrl, getPublicSiteUrl } from "@/lib/site-url";
+import { getPublicSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,32 +16,65 @@ const geistMono = Geist_Mono({
 });
 
 const siteDescription = "IXS token valuation and price simulator";
-const ogImageUrl = absoluteUrl("/api/og");
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getPublicSiteUrl()),
-  title: "IXS Valuation Simulator",
-  description: siteDescription,
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const h = await headers();
+  const forwarded = h.get("x-forwarded-host");
+  const hostRaw = (forwarded ?? h.get("host") ?? "").split(",")[0]?.trim() ?? "";
+  const base =
+    hostRaw.length > 0
+      ? (() => {
+          const protoHeader = h.get("x-forwarded-proto")?.split(",")[0]?.trim();
+          const isLocal =
+            hostRaw.startsWith("127.") ||
+            hostRaw.startsWith("localhost") ||
+            hostRaw.startsWith("192.168.");
+          const scheme =
+            protoHeader === "http" || (isLocal && !protoHeader)
+              ? "http"
+              : "https";
+          return `${scheme}://${hostRaw}`;
+        })()
+      : getPublicSiteUrl();
+  const ogImageUrl = `${base}/api/og`;
+  const userAgent = h.get("user-agent") ?? "";
+
+  console.log("[ixs:metadata]", {
+    host: hostRaw || null,
+    "x-forwarded-host": forwarded ?? null,
+    "x-forwarded-proto": h.get("x-forwarded-proto") ?? null,
+    fallbackBase: hostRaw.length === 0 ? getPublicSiteUrl() : null,
+    resolvedBase: base,
+    ogImageUrl,
+    userAgentPreview: userAgent.slice(0, 120),
+  });
+
+  return {
+    metadataBase: new URL(base),
     title: "IXS Valuation Simulator",
     description: siteDescription,
-    type: "website",
-    images: [
-      {
-        url: ogImageUrl,
-        width: 1200,
-        height: 630,
-        alt: "IXS Valuation Simulator",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "IXS Valuation Simulator",
-    description: siteDescription,
-    images: [ogImageUrl],
-  },
-};
+    openGraph: {
+      title: "IXS Valuation Simulator",
+      description: siteDescription,
+      type: "website",
+      url: `${base}/`,
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: "IXS Valuation Simulator",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "IXS Valuation Simulator",
+      description: siteDescription,
+      images: [ogImageUrl],
+    },
+  };
+}
 
 export default function RootLayout({
   children,

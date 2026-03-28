@@ -50,18 +50,45 @@ function ogFallback() {
 }
 
 export async function GET(request: NextRequest) {
+  const reqUrl = request.url;
+  const ua = request.headers.get("user-agent") ?? "";
+
   try {
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(reqUrl);
     const state = parseShareUrlQuery(searchParams);
     if (!state) {
+      console.log("[ixs:og]", {
+        variant: "fallback",
+        reason: "no_or_invalid_query",
+        requestUrl: reqUrl,
+        userAgentPreview: ua.slice(0, 120),
+      });
       return ogFallback();
     }
     const result = simulationFromShareState(state);
     if (!result) {
+      console.log("[ixs:og]", {
+        variant: "fallback",
+        reason: "simulation_null",
+        requestUrl: reqUrl,
+        userAgentPreview: ua.slice(0, 120),
+      });
       return ogFallback();
     }
+    console.log("[ixs:og]", {
+      variant: "simulation_card",
+      requestUrl: reqUrl,
+      userAgentPreview: ua.slice(0, 120),
+    });
     return buildOgResponse(state, result);
-  } catch {
+  } catch (err) {
+    console.error("[ixs:og]", {
+      variant: "fallback",
+      reason: "exception",
+      requestUrl: reqUrl,
+      message: err instanceof Error ? err.message : String(err),
+      userAgentPreview: ua.slice(0, 120),
+    });
     return ogFallback();
   }
 }
