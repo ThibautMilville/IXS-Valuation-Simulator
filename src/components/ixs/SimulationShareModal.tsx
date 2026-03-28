@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { IxsSimulatorResult } from "@/lib/ixs-simulator";
-import { shareSimulationWithOptionalImage } from "@/lib/share-card-capture";
+import {
+  shareSimulationOnX,
+  shareSimulationWithOptionalImage,
+} from "@/lib/share-card-capture";
 import {
   buildFacebookShareUrl,
   buildLinkedInShareUrl,
@@ -82,6 +85,24 @@ export function SimulationShareModal({
       setSharing(false);
     }
   }, [plainText, siteUrl, shareTitle]);
+
+  const runXShare = useCallback(async () => {
+    const el = cardRef.current;
+    if (!el) {
+      return;
+    }
+    setSharing(true);
+    try {
+      await shareSimulationOnX(el, {
+        title: shareTitle,
+        tweetCaption: twitterText,
+        siteUrl,
+        intentUrl: buildTwitterIntentUrl(twitterText, siteUrl),
+      });
+    } finally {
+      setSharing(false);
+    }
+  }, [shareTitle, siteUrl, twitterText]);
 
   useEffect(() => {
     if (!open) {
@@ -170,7 +191,9 @@ export function SimulationShareModal({
             <span className={FIELD_ICON_CLASS}>
               <IconScreenshotHint />
             </span>
-            <span className="leading-snug">Screenshot or share to social</span>
+            <span className="leading-snug">
+              Screenshot, share as image, or open a social app
+            </span>
           </p>
           <div className="flex min-h-[min(42dvh,26rem)] flex-1 flex-col">
             <SimulationShareCard
@@ -197,7 +220,11 @@ export function SimulationShareModal({
             </span>
             <span className="leading-snug">Social networks</span>
           </p>
-          <SimulationSocialNetworkRow links={links} />
+          <SimulationSocialNetworkRow
+            links={links}
+            onXShare={runXShare}
+            xShareDisabled={sharing}
+          />
         </div>
       </div>
     </div>,
