@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  FIELD_ICON_CLASS,
+  IconModeAdvanced,
+  IconModeSimple,
+} from "@/components/icons/SimulatorUiIcons";
+
 export type SimulatorMode = "simple" | "advanced";
 
 type SimulatorModeTabsProps = {
@@ -22,27 +28,33 @@ export function SimulatorModeTabs({
           type="button"
           role="tab"
           aria-selected={mode === "simple"}
-          className={`flex min-w-[5.5rem] cursor-pointer items-center justify-center rounded-lg px-4 text-xs font-medium transition-colors sm:min-w-[6.5rem] sm:px-5 sm:text-sm ${
+          className={`flex min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-xs font-medium leading-none transition-colors sm:min-w-[7rem] sm:px-5 sm:text-sm ${
             mode === "simple"
               ? "bg-[#2564dd]/25 text-white shadow-sm ring-1 ring-[#2564dd]/40"
               : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300"
           }`}
           onClick={() => onModeChange("simple")}
         >
-          Simple
+          <span className={FIELD_ICON_CLASS}>
+            <IconModeSimple />
+          </span>
+          <span className="leading-snug">Simple</span>
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={mode === "advanced"}
-          className={`flex min-w-[5.5rem] cursor-pointer items-center justify-center rounded-lg px-4 text-xs font-medium transition-colors sm:min-w-[6.5rem] sm:px-5 sm:text-sm ${
+          className={`flex min-w-[5.5rem] cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-xs font-medium leading-none transition-colors sm:min-w-[7rem] sm:px-5 sm:text-sm ${
             mode === "advanced"
               ? "bg-[#2564dd]/25 text-white shadow-sm ring-1 ring-[#2564dd]/40"
               : "text-zinc-500 hover:bg-white/[0.04] hover:text-zinc-300"
           }`}
           onClick={() => onModeChange("advanced")}
         >
-          Advanced
+          <span className={FIELD_ICON_CLASS}>
+            <IconModeAdvanced />
+          </span>
+          <span className="leading-snug">Advanced</span>
         </button>
       </div>
     </div>

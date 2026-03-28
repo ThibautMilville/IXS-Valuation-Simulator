@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import type { IxsDashboardMetrics } from "@/lib/ixs-dashboard";
-import { clamp } from "@/lib/clamp";
 import { computeIxsSimulation } from "@/lib/ixs-simulator";
 import {
   getBurnedSliderConfig,
@@ -33,45 +32,41 @@ import {
   SimulatorModeTabs,
   type SimulatorMode,
 } from "@/components/ixs/SimulatorModeTabs";
+import {
+  IconBurned,
+  IconHolderBalance,
+  IconMcTvlRatio,
+  IconTvl,
+} from "@/components/icons/SimulatorUiIcons";
 import { RangeSlider } from "@/components/ui/RangeSlider";
-
-const DEFAULT_HOLDER_QUANTITY = 10_000;
-const DEFAULT_MC_TO_TVL_RATIO = 0.3;
+import { SimulationShareControl } from "@/components/ixs/SimulationShareControl";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { buildInitialSimulatorSliders } from "@/lib/initial-simulator-sliders";
+import type { ShareUrlState } from "@/lib/share-url-state";
 
 type IxsSimulatorViewProps = {
   metrics: IxsDashboardMetrics;
   initialMarketCapUsd: number;
+  shareRestore: ShareUrlState | null;
 };
 
 export function IxsSimulatorView({
   metrics,
   initialMarketCapUsd,
+  shareRestore,
 }: IxsSimulatorViewProps) {
   const [totalSupply] = useState(metrics.total_supply);
 
-  const [tvlUsd, setTvlUsd] = useState(() =>
-    clamp(metrics.tvl_usd, SLIDER_TVL.min, INPUT_MAX_USD),
+  const [initialSliders] = useState(() =>
+    buildInitialSimulatorSliders(metrics, initialMarketCapUsd, shareRestore),
   );
-  const [mcToTvlRatio, setMcToTvlRatio] = useState(() => {
-    const tvl = metrics.tvl_usd;
-    if (tvl > 0 && Number.isFinite(initialMarketCapUsd)) {
-      return clamp(
-        initialMarketCapUsd / tvl,
-        SLIDER_MC_TO_TVL_RATIO.min,
-        INPUT_MAX_MC_TO_TVL_RATIO,
-      );
-    }
-    return DEFAULT_MC_TO_TVL_RATIO;
-  });
-  const [burnedTokens, setBurnedTokens] = useState(() => {
-    const bc = getBurnedSliderConfig(metrics.total_supply);
-    return Math.round(
-      clamp(metrics.total_tokens_burned, bc.min, INPUT_MAX_IXS),
-    );
-  });
-  const [holderQuantity, setHolderQuantity] = useState(DEFAULT_HOLDER_QUANTITY);
+  const [tvlUsd, setTvlUsd] = useState(initialSliders.tvlUsd);
+  const [mcToTvlRatio, setMcToTvlRatio] = useState(initialSliders.mcToTvlRatio);
+  const [burnedTokens, setBurnedTokens] = useState(initialSliders.burnedTokens);
+  const [holderQuantity, setHolderQuantity] = useState(
+    initialSliders.holderQuantity,
+  );
   const [simulatorMode, setSimulatorMode] = useState<SimulatorMode>("simple");
-
   const scenarioMarketCapUsd = tvlUsd * mcToTvlRatio;
 
   const burnedSlider = useMemo(
@@ -108,8 +103,8 @@ export function IxsSimulatorView({
       : null;
 
   return (
-    <div className="flex min-h-dvh w-full flex-col px-4 py-6 pb-12 sm:px-6 sm:py-8 sm:pb-16">
-      <div className="mx-auto flex w-full max-w-md flex-col md:max-w-3xl lg:max-w-4xl xl:max-w-5xl">
+    <div className="flex min-h-dvh w-full flex-col px-4 pt-6 sm:px-6 sm:pt-8">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col md:max-w-3xl lg:max-w-4xl xl:max-w-5xl">
         <header className="flex w-full shrink-0 flex-col items-center pb-5 text-center sm:pb-6">
           <div className="flex justify-center">
             <div className="relative flex items-center justify-center">
@@ -135,7 +130,7 @@ export function IxsSimulatorView({
               <p className="mx-auto mt-3 max-w-2xl text-pretty text-xs leading-relaxed text-zinc-500 sm:mt-4 sm:text-sm">
                 Supply {formatInteger(totalSupply)} IXS · scenario MC ={" "}
                 <span className="font-medium text-zinc-400">
-                  (MC ÷ TVL) × TVL
+                  MC/TVL × TVL
                 </span>
                 · implied IXS price = scenario MC ÷ circulating supply · stack
                 = balance × price.
@@ -156,6 +151,7 @@ export function IxsSimulatorView({
                 <RangeSlider
                     id="tvl"
                     label="TVL"
+                    labelIcon={<IconTvl />}
                     min={SLIDER_TVL.min}
                     max={SLIDER_TVL.max}
                     step={SLIDER_TVL.step}
@@ -169,7 +165,8 @@ export function IxsSimulatorView({
                   />
                   <RangeSlider
                     id="mc-tvl-ratio"
-                    label="MC ÷ TVL (scenario)"
+                    label="MC/TVL (scenario)"
+                    labelIcon={<IconMcTvlRatio />}
                     min={SLIDER_MC_TO_TVL_RATIO.min}
                     max={SLIDER_MC_TO_TVL_RATIO.max}
                     step={SLIDER_MC_TO_TVL_RATIO.step}
@@ -186,6 +183,7 @@ export function IxsSimulatorView({
                   <RangeSlider
                     id="burned"
                     label="Burned tokens"
+                    labelIcon={<IconBurned />}
                     min={burnedSlider.min}
                     max={burnedSlider.max}
                     step={burnedSlider.step}
@@ -200,6 +198,7 @@ export function IxsSimulatorView({
                   <RangeSlider
                     id="holder"
                     label={holderBalanceLabel}
+                    labelIcon={<IconHolderBalance />}
                     min={SLIDER_HOLDER.min}
                     max={SLIDER_HOLDER.max}
                     step={SLIDER_HOLDER.step}
@@ -227,11 +226,20 @@ export function IxsSimulatorView({
                     {formatUsdCompact(scenarioMarketCapUsd)}
                   </p>
                   <p className="mt-2 text-balance font-mono text-[10px] leading-relaxed tabular-nums text-zinc-400 sm:text-xs">
-                    = (MC ÷ TVL) × TVL = {formatNumber(mcToTvlRatio)} ×{" "}
+                    = MC/TVL × TVL = {formatNumber(mcToTvlRatio)} ×{" "}
                     {formatUsdCompact(tvlUsd)}
                   </p>
                 </div>
               </div>
+
+              {!parsed.ok ? (
+                <div className="col-span-full flex justify-center">
+                  <SimulationShareControl
+                    result={null}
+                    totalSupply={totalSupply}
+                  />
+                </div>
+              ) : null}
 
               {errorMessage ? (
                 <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-950/35 px-4 py-3 text-center text-sm text-amber-100/95">
@@ -258,9 +266,15 @@ export function IxsSimulatorView({
                   </p>
                   <p className="mt-3 text-center text-[11px] leading-relaxed tabular-nums text-zinc-500 sm:text-xs">
                     TVL {formatUsdCompact(parsed.result.tvlUsd)} · scenario MC{" "}
-                    {formatUsdCompact(parsed.result.marketCapUsd)} · TVL ÷ MC{" "}
-                    {formatNumber(parsed.result.tvlToMcRatio)}
+                    {formatUsdCompact(parsed.result.marketCapUsd)} · MC/TVL{" "}
+                    {formatNumber(parsed.result.mcToTvlRatio)}
                   </p>
+                  <div className="mt-6 flex justify-center border-t border-white/[0.08] pt-5 sm:mt-8 sm:pt-6">
+                    <SimulationShareControl
+                      result={parsed.result}
+                      totalSupply={totalSupply}
+                    />
+                  </div>
                 </div>
               ) : null}
 
@@ -274,6 +288,7 @@ export function IxsSimulatorView({
           </section>
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }

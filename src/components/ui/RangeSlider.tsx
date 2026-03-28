@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState, type ReactNode } from "react";
+import { FIELD_ICON_CLASS } from "@/components/icons/SimulatorUiIcons";
 import { clamp } from "@/lib/clamp";
 import {
   formatInputBlurred,
@@ -12,6 +13,7 @@ import { parseDecimalInput } from "@/lib/parse-decimal-input";
 type RangeSliderProps = {
   id: string;
   label: string;
+  labelIcon?: ReactNode;
   min: number;
   max: number;
   step: number | "any";
@@ -29,6 +31,7 @@ type RangeSliderProps = {
 export function RangeSlider({
   id,
   label,
+  labelIcon,
   min,
   max,
   step,
@@ -138,9 +141,12 @@ export function RangeSlider({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <label
           htmlFor={id}
-          className="shrink-0 text-xs font-medium tracking-wide text-zinc-400"
+          className="flex shrink-0 items-center gap-2 text-xs font-medium leading-none tracking-wide text-zinc-400"
         >
-          {label}
+          {labelIcon ? (
+            <span className={FIELD_ICON_CLASS}>{labelIcon}</span>
+          ) : null}
+          <span className="leading-snug">{label}</span>
         </label>
         <div className="flex w-full min-w-min max-w-full shrink-0 justify-end overflow-x-auto sm:ml-auto sm:w-auto">
           <div

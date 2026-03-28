@@ -24,16 +24,26 @@ import {
   formatUsdPrice,
 } from "@/lib/format-numbers";
 import { RangeSlider } from "@/components/ui/RangeSlider";
+import {
+  FIELD_ICON_CLASS,
+  IconBtc,
+  IconLaunchpad,
+  IconLpListing,
+  IconLpSwap,
+  IconSaas,
+} from "@/components/icons/SimulatorUiIcons";
 
 function CollapsibleFeeCard({
   cardId,
   title,
+  icon,
   description,
   children,
   defaultOpen = true,
 }: {
   cardId: string;
   title: string;
+  icon?: ReactNode;
   description: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
@@ -52,7 +62,12 @@ function CollapsibleFeeCard({
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
       >
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
+        <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold leading-none text-white">
+          {icon ? (
+            <span className={FIELD_ICON_CLASS}>{icon}</span>
+          ) : null}
+          <span className="min-w-0 leading-snug">{title}</span>
+        </h3>
         <svg
           className={`size-5 shrink-0 text-zinc-500 transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
           viewBox="0 0 20 20"
@@ -197,6 +212,7 @@ export function AdvancedFeePanel({
         <CollapsibleFeeCard
           cardId="lp-swap"
           title="Liquidity pool swap fees"
+          icon={<IconLpSwap />}
           description={
             <>
               <p>
@@ -246,6 +262,7 @@ export function AdvancedFeePanel({
         <CollapsibleFeeCard
           cardId="lp-listing"
           title="Liquidity pool listing"
+          icon={<IconLpListing />}
           description={
             <>
               <p>Fee: variable flat fee (negotiable).</p>
@@ -291,6 +308,7 @@ export function AdvancedFeePanel({
         <CollapsibleFeeCard
           cardId="launchpad"
           title="Launchpad listing"
+          icon={<IconLaunchpad />}
           description={
             <>
               <p>Fee: variable % of total amount raised.</p>
@@ -350,6 +368,7 @@ export function AdvancedFeePanel({
         <CollapsibleFeeCard
           cardId="btc-yield"
           title="BTC yield program"
+          icon={<IconBtc />}
           description={
             <>
               <p>Fee: variable % of borrow amount (baseline often ~0.5%).</p>
@@ -409,6 +428,7 @@ export function AdvancedFeePanel({
         <CollapsibleFeeCard
           cardId="saas"
           title="SaaS"
+          icon={<IconSaas />}
           description={
             <>
               <p>Fee: variable flat fee and monthly fee.</p>

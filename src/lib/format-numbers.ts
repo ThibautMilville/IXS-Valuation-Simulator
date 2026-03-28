@@ -123,18 +123,6 @@ export function formatInputBlurred(value: number, integerOnly: boolean): string 
 const WIDTH_ESTIMATE_CAP_INTEGER = Number.MAX_SAFE_INTEGER;
 const WIDTH_ESTIMATE_CAP_DECIMAL = 1e15;
 
-export function estimateBlurredInputChars(
-  n: number,
-  integerOnly: boolean,
-): number {
-  if (!Number.isFinite(n)) {
-    return 1;
-  }
-  const cap = integerOnly ? WIDTH_ESTIMATE_CAP_INTEGER : WIDTH_ESTIMATE_CAP_DECIMAL;
-  const clamped = Math.min(Math.max(n, -cap), cap);
-  return formatInputBlurred(clamped, integerOnly).length;
-}
-
 function maxIntegerBlurredLenBetween(ai: number, bi: number): number {
   const span = bi - ai;
   let m = Math.max(
