@@ -1,38 +1,38 @@
 # IXS Valuation Simulator
 
-Application **Next.js** pour simuler le prix et la valorisation du token IXS (TVL, ratio MC/TVL, offre, stack détenteur).
+**Next.js** app for IXS price and valuation scenarios (TVL, MC/TVL ratio, supply, holder stack).
 
-## Prérequis
+## Requirements
 
-- **Node.js** ≥ 20.9 (voir `package.json` et `.nvmrc`)
+- **Node.js** ≥ 20.9 (see `package.json` and `.nvmrc`)
 
-## Démarrage
+## Getting started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Autres scripts : `npm run build`, `npm run start`, `npm run lint`.
+Other scripts: `npm run build`, `npm run start`, `npm run lint`.
 
-## Variables d’environnement
+## Environment variables
 
-À définir dans `.env.local` ou dans l’interface de ton hébergeur (puis **redéployer** si tu changes une variable).
+Set these in `.env.local` or your host’s dashboard. **Redeploy** after changing values in production.
 
-| Variable | Obligatoire | Rôle |
-| -------- | ----------- | ---- |
-| `NEXT_PUBLIC_SITE_URL` | Recommandé en prod | URL publique du site, **avec** le schéma (`https://`) et **sans** slash final. Sert de repli dans `getPublicSiteUrl()` quand la requête n’a pas d’en-têtes `Host` / `X-Forwarded-Host` exploitables (build, certains jobs). |
+| Variable | Required | Purpose |
+| -------- | -------- | ------- |
+| `NEXT_PUBLIC_SITE_URL` | Recommended in production | Public site URL **with** scheme (`https://`) and **no** trailing slash. Used as a fallback in `getPublicSiteUrl()` when the request has no usable `Host` / `X-Forwarded-Host` headers (e.g. some builds or jobs). |
 
-Si la variable est absente sur **Vercel**, le code utilise en secours `VERCEL_URL` pour fabriquer une base `https://…`. En local sans rien configurer, le repli par défaut est `http://localhost:3000`.
+On **Vercel**, if unset, the app falls back to `VERCEL_URL` and builds a `https://…` base. Locally, with nothing configured, the default is `http://localhost:3000`.
 
-## Aperçus de lien (Open Graph, X, etc.)
+## Link previews (Open Graph, X, etc.)
 
-- **Image par défaut** : fichier statique `public/og-default.png`. Les balises `og:image` et `twitter:image` sont définies dans `src/app/layout.tsx` (`generateMetadata`) avec une URL absolue `{origine}/og-default.png`, l’origine étant dérivée des en-têtes de la requête quand c’est possible.
-- **Image dynamique (partage avec paramètres d’URL)** : route `GET /api/og` (réécriture `GET /og.png` → `/api/og` dans `next.config.ts`). Sert à générer une carte PNG pour les URLs qui incluent l’état de partage dans la query.
-- **`/robots.txt`** : généré par `src/app/robots.ts` (accès autorisé à tout le site pour les robots).
+- **Default image**: static file `public/og-default.png`. `og:image` and `twitter:image` are set in `src/app/layout.tsx` (`generateMetadata`) as an absolute `{origin}/og-default.png`, with `origin` taken from request headers when possible.
+- **Dynamic image (share URLs with query params)**: `GET /api/og`, also reachable via the rewrite `GET /og.png` → `/api/og` in `next.config.ts`. Renders a PNG card for URLs that encode share state in the query string.
+- **`/robots.txt`**: served from `src/app/robots.ts` (allows all crawlers site-wide).
 
-Si les cartes de prévisualisation pointent encore vers `http://localhost:3000`, configure `NEXT_PUBLIC_SITE_URL` sur l’URL de production ou vérifie que ton hébergeur envoie bien `Host` / `X-Forwarded-Host`.
+If preview cards still show `http://localhost:3000`, set `NEXT_PUBLIC_SITE_URL` to your production origin or ensure your host sends correct `Host` / `X-Forwarded-Host` headers.
 
-## Partage depuis l’app
+## In-app sharing
 
-Le modal « Share » propose le **texte** de la simulation et des **liens** vers les réseaux (intent X, etc.). Il n’y a **pas** de génération d’image côté navigateur pour joindre un fichier au tweet : l’image des cartes sociales repose sur les métadonnées et les routes ci-dessus.
+The Share modal exposes **plain text** for the simulation and **links** to social intents (X, etc.). There is **no** client-side image capture for attaching a file to a tweet; social card images come from the metadata and routes above.
