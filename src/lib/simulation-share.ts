@@ -7,14 +7,6 @@ import {
   formatUsdCompact,
   formatUsdPrice,
 } from "@/lib/format-numbers";
-import {
-  buildFacebookShareUrl,
-  buildLinkedInShareUrl,
-  buildRedditSubmitUrl,
-  buildTelegramShareUrl,
-  buildWhatsAppShareUrl,
-} from "@/lib/social-share-links";
-
 export type SimulationShareBuildInput = {
   result: IxsSimulatorResult;
   totalSupply: number;
@@ -46,7 +38,7 @@ export function buildSimulationSharePlainText(
     )} IXS (${formatPercent(result.burnPercentOfMax, 2)} of max supply)`,
     `FDV (scenario): ${formatUsdCompact(result.fdvUsd)}`,
     "",
-    pageUrl ? `Simulator: ${pageUrl}` : "",
+    pageUrl ? pageUrl : "",
   ];
   return lines.filter((l) => l !== "").join("\n");
 }
@@ -74,18 +66,4 @@ export function buildTwitterIntentUrl(text: string, url: string): string {
     params.set("url", url);
   }
   return `https://x.com/intent/tweet?${params.toString()}`;
-}
-
-export function buildSimulationSocialShareLinks(input: SimulationShareBuildInput) {
-  const shareTitle = buildSimulationShareTitle();
-  const twitterText = buildSimulationTwitterShareText(input);
-  const { pageUrl } = input;
-  return {
-    x: buildTwitterIntentUrl(twitterText, pageUrl),
-    facebook: buildFacebookShareUrl(pageUrl),
-    linkedin: buildLinkedInShareUrl(pageUrl),
-    reddit: buildRedditSubmitUrl(pageUrl, shareTitle),
-    telegram: buildTelegramShareUrl(twitterText, pageUrl),
-    whatsapp: buildWhatsAppShareUrl(twitterText, pageUrl),
-  };
 }

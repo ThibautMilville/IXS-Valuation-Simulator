@@ -42,23 +42,20 @@ import { RangeSlider } from "@/components/ui/RangeSlider";
 import { SimulationShareControl } from "@/components/ixs/SimulationShareControl";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { buildInitialSimulatorSliders } from "@/lib/initial-simulator-sliders";
-import type { ShareUrlState } from "@/lib/share-url-state";
 
 type IxsSimulatorViewProps = {
   metrics: IxsDashboardMetrics;
   initialMarketCapUsd: number;
-  shareRestore: ShareUrlState | null;
 };
 
 export function IxsSimulatorView({
   metrics,
   initialMarketCapUsd,
-  shareRestore,
 }: IxsSimulatorViewProps) {
   const [totalSupply] = useState(metrics.total_supply);
 
   const [initialSliders] = useState(() =>
-    buildInitialSimulatorSliders(metrics, initialMarketCapUsd, shareRestore),
+    buildInitialSimulatorSliders(metrics, initialMarketCapUsd),
   );
   const [tvlUsd, setTvlUsd] = useState(initialSliders.tvlUsd);
   const [mcToTvlRatio, setMcToTvlRatio] = useState(initialSliders.mcToTvlRatio);

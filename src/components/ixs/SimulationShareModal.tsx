@@ -4,7 +4,6 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { IxsSimulatorResult } from "@/lib/ixs-simulator";
 import { shareSimulationWithOptionalImage } from "@/lib/share-card-capture";
-import { buildAbsoluteShareUrl } from "@/lib/share-url-state";
 import {
   buildFacebookShareUrl,
   buildLinkedInShareUrl,
@@ -46,26 +45,25 @@ export function SimulationShareModal({
   const cardRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
 
-  const origin =
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
+  const fromLocation =
     typeof globalThis.location !== "undefined"
-      ? globalThis.location.origin
+      ? globalThis.location.origin.replace(/\/$/, "")
       : "";
-  const sharePageUrl = origin
-    ? buildAbsoluteShareUrl(origin, result, totalSupply)
-    : "";
+  const siteUrl = fromEnv || fromLocation;
 
-  const input = { result, totalSupply, pageUrl: sharePageUrl };
+  const input = { result, totalSupply, pageUrl: siteUrl };
   const shareTitle = buildSimulationShareTitle();
   const plainText = buildSimulationSharePlainText(input);
   const twitterText = buildSimulationTwitterShareText(input);
 
   const links = {
-    x: buildTwitterIntentUrl(twitterText, sharePageUrl),
-    facebook: buildFacebookShareUrl(sharePageUrl),
-    linkedin: buildLinkedInShareUrl(sharePageUrl),
-    reddit: buildRedditSubmitUrl(sharePageUrl, shareTitle),
-    telegram: buildTelegramShareUrl(twitterText, sharePageUrl),
-    whatsapp: buildWhatsAppShareUrl(twitterText, sharePageUrl),
+    x: buildTwitterIntentUrl(twitterText, siteUrl),
+    facebook: buildFacebookShareUrl(siteUrl),
+    linkedin: buildLinkedInShareUrl(siteUrl),
+    reddit: buildRedditSubmitUrl(siteUrl, shareTitle),
+    telegram: buildTelegramShareUrl(twitterText, siteUrl),
+    whatsapp: buildWhatsAppShareUrl(twitterText, siteUrl),
   };
 
   const runNativeShare = useCallback(async () => {
@@ -78,12 +76,12 @@ export function SimulationShareModal({
       await shareSimulationWithOptionalImage(el, {
         title: shareTitle,
         text: plainText,
-        url: sharePageUrl,
+        url: siteUrl,
       });
     } finally {
       setSharing(false);
     }
-  }, [plainText, sharePageUrl, shareTitle]);
+  }, [plainText, siteUrl, shareTitle]);
 
   useEffect(() => {
     if (!open) {
@@ -179,7 +177,7 @@ export function SimulationShareModal({
               ref={cardRef}
               result={result}
               totalSupply={totalSupply}
-              pageUrl={sharePageUrl}
+              pageUrl={siteUrl}
               className="min-h-0 flex-1"
             />
           </div>
