@@ -1,19 +1,21 @@
-export const IXS_MAX_SUPPLY = 180_000_000;
-
 export type IxsSimulatorInput = {
-  marketCapUsd: number;
   tvlUsd: number;
+  mcToTvlRatio: number;
   burnedTokens: number;
   holderQuantity: number;
+  totalSupply: number;
 };
 
 export type IxsSimulatorResult = {
   circulatingSupply: number;
+  tvlUsd: number;
+  mcToTvlRatio: number;
+  marketCapUsd: number;
+  tvlToMcRatio: number;
   priceUsd: number;
   holderQuantity: number;
   holderValueUsd: number;
   burnPercentOfMax: number;
-  tvlToMcRatio: number;
   fdvUsd: number;
 };
 
@@ -25,33 +27,39 @@ export function computeIxsSimulation(
   input: IxsSimulatorInput,
 ): IxsSimulatorResult | null {
   if (
-    !isValidNonNegative(input.marketCapUsd) ||
     !isValidNonNegative(input.tvlUsd) ||
+    !isValidNonNegative(input.mcToTvlRatio) ||
     !isValidNonNegative(input.burnedTokens) ||
-    !isValidNonNegative(input.holderQuantity)
+    !isValidNonNegative(input.holderQuantity) ||
+    !isValidNonNegative(input.totalSupply) ||
+    input.totalSupply <= 0
   ) {
     return null;
   }
 
-  const circulatingSupply = IXS_MAX_SUPPLY - input.burnedTokens;
+  const circulatingSupply = input.totalSupply - input.burnedTokens;
   if (circulatingSupply <= 0) {
     return null;
   }
 
-  const priceUsd = input.marketCapUsd / circulatingSupply;
-  const holderValueUsd = input.holderQuantity * priceUsd;
-  const burnPercentOfMax = (input.burnedTokens / IXS_MAX_SUPPLY) * 100;
+  const marketCapUsd = input.tvlUsd * input.mcToTvlRatio;
   const tvlToMcRatio =
-    input.marketCapUsd > 0 ? input.tvlUsd / input.marketCapUsd : 0;
-  const fdvUsd = priceUsd * IXS_MAX_SUPPLY;
+    marketCapUsd > 0 ? input.tvlUsd / marketCapUsd : 0;
+  const priceUsd = marketCapUsd / circulatingSupply;
+  const holderValueUsd = input.holderQuantity * priceUsd;
+  const burnPercentOfMax = (input.burnedTokens / input.totalSupply) * 100;
+  const fdvUsd = priceUsd * input.totalSupply;
 
   return {
     circulatingSupply,
+    tvlUsd: input.tvlUsd,
+    mcToTvlRatio: input.mcToTvlRatio,
+    marketCapUsd,
+    tvlToMcRatio,
     priceUsd,
     holderQuantity: input.holderQuantity,
     holderValueUsd,
     burnPercentOfMax,
-    tvlToMcRatio,
     fdvUsd,
   };
 }

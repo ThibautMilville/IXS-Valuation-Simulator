@@ -23,6 +23,11 @@ body {
       transparent 50%
     ),
     radial-gradient(
+      ellipse 90% 50% at 50% 120%,
+      rgba(37, 100, 221, 0.06),
+      transparent 45%
+    ),
+    radial-gradient(
       circle at 50% -20%,
       rgba(45, 52, 72, 0.55),
       transparent 55%
@@ -46,7 +51,7 @@ body {
 }
 
 .ixs-range::-webkit-slider-runnable-track {
-  height: 10px;
+  height: 8px;
   border-radius: 9999px;
   background: transparent;
 }
@@ -54,9 +59,9 @@ body {
 .ixs-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
-  margin-top: -6px;
+  width: 18px;
+  height: 18px;
+  margin-top: -5px;
   border-radius: 50%;
   background: linear-gradient(145deg, #fafafa 0%, #e4e4e7 100%);
   border: 2px solid rgb(24 24 27 / 0.9);
@@ -80,14 +85,14 @@ body {
 }
 
 .ixs-range::-moz-range-track {
-  height: 10px;
+  height: 8px;
   border-radius: 9999px;
   background: transparent;
 }
 
 .ixs-range::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: linear-gradient(145deg, #fafafa 0%, #e4e4e7 100%);
   border: 2px solid rgb(24 24 27 / 0.9);
