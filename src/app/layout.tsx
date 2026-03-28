@@ -36,7 +36,6 @@ export async function generateMetadata(): Promise<Metadata> {
           return `${scheme}://${hostRaw}`;
         })()
       : getPublicSiteUrl();
-  const ogImageUrl = `${base}/og-default.png`;
   const userAgent = h.get("user-agent") ?? "";
 
   console.log("[ixs:metadata]", {
@@ -45,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
     "x-forwarded-proto": h.get("x-forwarded-proto") ?? null,
     fallbackBase: hostRaw.length === 0 ? getPublicSiteUrl() : null,
     resolvedBase: base,
-    ogImageUrl,
+    ogImages: "opengraph-image.png + twitter-image.png (file conventions)",
     userAgentPreview: userAgent.slice(0, 120),
   });
 
@@ -58,31 +57,11 @@ export async function generateMetadata(): Promise<Metadata> {
       description: siteDescription,
       type: "website",
       url: `${base}/`,
-      images: [
-        {
-          url: ogImageUrl,
-          secureUrl: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: "IXS Valuation Simulator",
-          type: "image/png",
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
       title: "IXS Valuation Simulator",
       description: siteDescription,
-      images: [
-        {
-          url: ogImageUrl,
-          secureUrl: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: "IXS Valuation Simulator",
-          type: "image/png",
-        },
-      ],
     },
   };
 }
