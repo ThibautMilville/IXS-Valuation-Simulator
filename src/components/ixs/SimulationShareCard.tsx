@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { IxsSimulatorResult } from "@/lib/ixs-simulator";
 import {
   formatInteger,
@@ -69,22 +69,19 @@ function StatRow({
   );
 }
 
-export const SimulationShareCard = forwardRef<
-  HTMLDivElement,
-  SimulationShareCardProps
->(function SimulationShareCard(
-  { result, totalSupply, pageUrl, className = "" },
-  ref,
-) {
+export function SimulationShareCard({
+  result,
+  totalSupply,
+  pageUrl,
+  className = "",
+}: SimulationShareCardProps) {
   const burnedTokens = totalSupply - result.circulatingSupply;
   const displayUrl =
     pageUrl.length > 48 ? `${pageUrl.slice(0, 44)}…` : pageUrl;
 
   return (
     <div
-      ref={ref}
       className={`relative flex min-h-0 flex-col overflow-hidden rounded-2xl border border-[#2564dd]/25 bg-[#0b0b0f] bg-gradient-to-b from-[#12121a] via-[#0b0b0f] to-[#08080c] p-6 shadow-2xl shadow-black/60 ring-1 ring-inset ring-white/[0.06] sm:p-8 ${className}`}
-      data-share-card
     >
       <div className="relative flex min-h-0 flex-1 flex-col">
         <div className="flex shrink-0 flex-col items-center gap-1 border-b border-white/[0.08] pb-5 text-center">
@@ -171,4 +168,4 @@ export const SimulationShareCard = forwardRef<
       </div>
     </div>
   );
-});
+}

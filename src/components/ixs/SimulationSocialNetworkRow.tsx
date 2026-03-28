@@ -11,52 +11,31 @@ type SocialLinks = {
 
 type SimulationSocialNetworkRowProps = {
   links: SocialLinks;
-  onXShare?: () => void | Promise<void>;
-  xShareDisabled?: boolean;
 };
 
 const linkClass =
-  "flex h-8 w-8 shrink-0 touch-manipulation items-center justify-center rounded-md border border-white/[0.1] bg-zinc-900/90 text-zinc-200 transition-colors active:bg-zinc-800 hover:border-[#2564dd]/40 hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2564dd]/50 disabled:pointer-events-none disabled:opacity-40 sm:h-9 sm:w-9";
+  "flex h-8 w-8 shrink-0 touch-manipulation items-center justify-center rounded-md border border-white/[0.1] bg-zinc-900/90 text-zinc-200 transition-colors active:bg-zinc-800 hover:border-[#2564dd]/40 hover:bg-zinc-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2564dd]/50 sm:h-9 sm:w-9";
 
 const iconClass = "h-3 w-3 sm:h-3.5 sm:w-3.5";
 
-export function SimulationSocialNetworkRow({
-  links,
-  onXShare,
-  xShareDisabled = false,
-}: SimulationSocialNetworkRowProps) {
+export function SimulationSocialNetworkRow({ links }: SimulationSocialNetworkRowProps) {
   return (
     <div
       className="mx-auto flex w-full max-w-full flex-wrap justify-center gap-1 sm:gap-1.5"
       role="list"
     >
-      {onXShare ? (
-        <button
-          type="button"
-          disabled={xShareDisabled}
-          className={linkClass}
-          aria-label="Share on X with image when supported"
-          role="listitem"
-          onClick={() => void onXShare()}
-        >
-          <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-        </button>
-      ) : (
-        <a
-          href={links.x}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={linkClass}
-          aria-label="Share on X"
-          role="listitem"
-        >
-          <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-        </a>
-      )}
+      <a
+        href={links.x}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={linkClass}
+        aria-label="Share on X"
+        role="listitem"
+      >
+        <svg className={iconClass} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+      </a>
       <a
         href={links.facebook}
         target="_blank"

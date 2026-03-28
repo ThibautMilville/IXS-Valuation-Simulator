@@ -4,10 +4,6 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { IxsSimulatorResult } from "@/lib/ixs-simulator";
 import {
-  shareSimulationOnX,
-  shareSimulationWithOptionalImage,
-} from "@/lib/share-card-capture";
-import {
   buildFacebookShareUrl,
   buildLinkedInShareUrl,
   buildRedditSubmitUrl,
@@ -45,7 +41,6 @@ export function SimulationShareModal({
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
 
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
@@ -70,39 +65,27 @@ export function SimulationShareModal({
   };
 
   const runNativeShare = useCallback(async () => {
-    const el = cardRef.current;
-    if (!el) {
+    if (typeof navigator.share !== "function") {
       return;
+    }
+    const payload: ShareData = {
+      title: shareTitle,
+      text: plainText,
+    };
+    if (siteUrl) {
+      payload.url = siteUrl;
     }
     setSharing(true);
     try {
-      await shareSimulationWithOptionalImage(el, {
-        title: shareTitle,
-        text: plainText,
-        url: siteUrl,
-      });
+      await navigator.share(payload);
+    } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") {
+        return;
+      }
     } finally {
       setSharing(false);
     }
-  }, [plainText, siteUrl, shareTitle]);
-
-  const runXShare = useCallback(async () => {
-    const el = cardRef.current;
-    if (!el) {
-      return;
-    }
-    setSharing(true);
-    try {
-      await shareSimulationOnX(el, {
-        title: shareTitle,
-        tweetCaption: twitterText,
-        siteUrl,
-        intentUrl: buildTwitterIntentUrl(twitterText, siteUrl),
-      });
-    } finally {
-      setSharing(false);
-    }
-  }, [shareTitle, siteUrl, twitterText]);
+  }, [plainText, shareTitle, siteUrl]);
 
   useEffect(() => {
     if (!open) {
@@ -191,13 +174,10 @@ export function SimulationShareModal({
             <span className={FIELD_ICON_CLASS}>
               <IconScreenshotHint />
             </span>
-            <span className="leading-snug">
-              Screenshot, share as image, or open a social app
-            </span>
+            <span className="leading-snug">Screenshot or open a network below</span>
           </p>
           <div className="flex min-h-[min(42dvh,26rem)] flex-1 flex-col">
             <SimulationShareCard
-              ref={cardRef}
               result={result}
               totalSupply={totalSupply}
               pageUrl={siteUrl}
@@ -211,7 +191,7 @@ export function SimulationShareModal({
               onClick={() => void runNativeShare()}
               className="mt-4 flex h-11 w-full cursor-pointer items-center justify-center rounded-xl bg-[#2564dd] text-sm font-semibold text-white shadow-lg shadow-[#2564dd]/25 transition-colors hover:bg-[#1f56c4] disabled:cursor-wait disabled:opacity-70"
             >
-              {sharing ? "Preparing…" : "Share"}
+              {sharing ? "Sharing…" : "Share"}
             </button>
           ) : null}
           <p className="mb-1.5 mt-3 flex items-center justify-center gap-2 text-center text-[10px] font-semibold uppercase leading-none tracking-[0.18em] text-zinc-500 sm:mt-4">
@@ -220,11 +200,7 @@ export function SimulationShareModal({
             </span>
             <span className="leading-snug">Social networks</span>
           </p>
-          <SimulationSocialNetworkRow
-            links={links}
-            onXShare={runXShare}
-            xShareDisabled={sharing}
-          />
+          <SimulationSocialNetworkRow links={links} />
         </div>
       </div>
     </div>,
