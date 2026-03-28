@@ -98,8 +98,8 @@ export function IxsSimulatorView({
   return (
     <div className="flex min-h-dvh w-full flex-col px-4 py-6 pb-12 sm:px-6 sm:py-8 sm:pb-16">
       <div className="mx-auto flex w-full max-w-md flex-col md:max-w-3xl lg:max-w-4xl xl:max-w-5xl">
-        <header className="flex w-full shrink-0 flex-col items-center pb-6 text-center sm:pb-8">
-          <div className="mb-3 flex justify-center sm:mb-4">
+        <header className="flex w-full shrink-0 flex-col items-center pb-5 text-center sm:pb-6">
+          <div className="flex justify-center">
             <div className="relative flex items-center justify-center">
               <div
                 className="pointer-events-none absolute inset-[-35%] rounded-full bg-[#2564dd]/18 blur-3xl"
@@ -112,38 +112,31 @@ export function IxsSimulatorView({
               <IxsLogo className="relative h-10 w-auto text-white drop-shadow-[0_0_32px_rgb(37_100_221_/_0.4)] sm:h-11 md:h-12" />
             </div>
           </div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-zinc-500">
-            Valuation
-          </p>
-          <h1 className="mt-1.5 max-w-xl text-balance bg-gradient-to-b from-white via-white to-zinc-400 bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl md:text-[2rem]">
-            IXS price simulator
-          </h1>
-          <p className="mt-3 max-w-lg text-pretty text-xs leading-relaxed text-zinc-500 sm:mt-4 sm:text-sm">
-            Supply {formatInteger(totalSupply)} IXS. Scenario market cap is{" "}
-            <span className="font-medium text-zinc-400">(MC ÷ TVL) × TVL</span>{" "}
-            — e.g. ratio 0.3 and TVL $100M ⇒ MC $30M. Implied price = scenario
-            MC ÷ circulation. Stack = balance × price.
-          </p>
         </header>
 
         <div className="w-full">
           <section className="rounded-3xl border border-white/[0.1] bg-gradient-to-b from-zinc-900/75 via-zinc-950/92 to-[#09090b] p-5 shadow-2xl shadow-black/50 ring-1 ring-inset ring-white/[0.06] backdrop-blur-xl sm:p-6 md:p-8">
-              <div className="mb-6 text-center md:mb-8">
-                <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-5xl md:leading-[1.1]">
-                  Simulator
-                </h2>
-                <div
-                  className="mx-auto mt-4 h-px max-w-[12rem] bg-gradient-to-r from-transparent via-[#2564dd]/70 to-transparent"
-                  aria-hidden
-                />
-                <p className="mx-auto mt-3 max-w-md text-[13px] leading-snug text-zinc-500">
-                  Tune TVL, ratio, supply and balance — results update live.
-                </p>
-              </div>
+            <div className="mb-6 text-center md:mb-8">
+              <h1 className="mx-auto max-w-xl text-balance bg-gradient-to-b from-white via-white to-zinc-400 bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl md:text-[2rem]">
+                IXS price simulator
+              </h1>
+              <p className="mx-auto mt-3 max-w-2xl text-pretty text-xs leading-relaxed text-zinc-500 sm:mt-4 sm:text-sm">
+                Supply {formatInteger(totalSupply)} IXS · scenario MC ={" "}
+                <span className="font-medium text-zinc-400">
+                  (MC ÷ TVL) × TVL
+                </span>
+                · implied IXS price = scenario MC ÷ circulating supply · stack
+                = balance × price.
+              </p>
+              <div
+                className="mx-auto mt-5 h-px max-w-[12rem] bg-gradient-to-r from-transparent via-[#2564dd]/60 to-transparent"
+                aria-hidden
+              />
+            </div>
 
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 md:gap-x-8">
-                <div className="flex flex-col gap-5 rounded-2xl md:bg-zinc-950/50 md:p-5 md:ring-1 md:ring-white/[0.06]">
-                  <RangeSlider
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 md:gap-x-8">
+              <div className="flex flex-col gap-5 rounded-2xl md:bg-zinc-950/50 md:p-5 md:ring-1 md:ring-white/[0.06]">
+                <RangeSlider
                     id="tvl"
                     label="TVL"
                     min={SLIDER_TVL.min}
