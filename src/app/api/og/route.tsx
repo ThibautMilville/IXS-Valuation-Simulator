@@ -58,8 +58,7 @@ export async function GET(request: NextRequest) {
     const state = parseShareUrlQuery(searchParams);
     if (!state) {
       console.log("[ixs:og]", {
-        variant: "fallback",
-        reason: "no_or_invalid_query",
+        variant: "default_home",
         requestUrl: reqUrl,
         userAgentPreview: ua.slice(0, 120),
       });
