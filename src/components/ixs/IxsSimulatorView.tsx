@@ -14,6 +14,12 @@ import {
   SLIDER_TVL,
 } from "@/lib/slider-ranges";
 import {
+  MANUAL_NUDGE_IXS_BURN,
+  MANUAL_NUDGE_IXS_HOLDER,
+  MANUAL_NUDGE_MC_TO_TVL,
+  MANUAL_NUDGE_USD_SCENARIO,
+} from "@/lib/simulator-constants";
+import {
   formatInteger,
   formatNumber,
   formatPercent,
@@ -21,8 +27,13 @@ import {
   formatUsdCompact,
   formatUsdPrice,
 } from "@/lib/format-numbers";
-import { RangeSlider } from "@/components/ui/RangeSlider";
+import { AdvancedFeePanel } from "@/components/ixs/AdvancedFeePanel";
 import { IxsLogo } from "@/components/ixs/IxsLogo";
+import {
+  SimulatorModeTabs,
+  type SimulatorMode,
+} from "@/components/ixs/SimulatorModeTabs";
+import { RangeSlider } from "@/components/ui/RangeSlider";
 
 const DEFAULT_HOLDER_QUANTITY = 10_000;
 const DEFAULT_MC_TO_TVL_RATIO = 0.3;
@@ -59,6 +70,7 @@ export function IxsSimulatorView({
     );
   });
   const [holderQuantity, setHolderQuantity] = useState(DEFAULT_HOLDER_QUANTITY);
+  const [simulatorMode, setSimulatorMode] = useState<SimulatorMode>("simple");
 
   const scenarioMarketCapUsd = tvlUsd * mcToTvlRatio;
 
@@ -115,7 +127,7 @@ export function IxsSimulatorView({
         </header>
 
         <div className="w-full">
-          <section className="rounded-3xl border border-white/[0.1] bg-gradient-to-b from-zinc-900/75 via-zinc-950/92 to-[#09090b] p-5 shadow-2xl shadow-black/50 ring-1 ring-inset ring-white/[0.06] backdrop-blur-xl sm:p-6 md:p-8">
+          <section className="rounded-3xl border border-white/[0.1] bg-[#0b0b0f]/[0.94] p-5 shadow-2xl shadow-black/50 ring-1 ring-inset ring-white/[0.06] backdrop-blur-xl sm:p-6 md:p-8">
             <div className="mb-6 text-center md:mb-8">
               <h1 className="mx-auto max-w-xl text-balance bg-gradient-to-b from-white via-white to-zinc-400 bg-clip-text text-2xl font-semibold tracking-tight text-transparent sm:text-3xl md:text-[2rem]">
                 IXS price simulator
@@ -134,8 +146,13 @@ export function IxsSimulatorView({
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 md:gap-x-8">
-              <div className="flex flex-col gap-5 rounded-2xl md:bg-zinc-950/50 md:p-5 md:ring-1 md:ring-white/[0.06]">
+            <SimulatorModeTabs
+              mode={simulatorMode}
+              onModeChange={setSimulatorMode}
+            />
+
+            <div className="grid grid-cols-1 gap-5 md:gap-6 md:gap-x-8 md:[grid-template-columns:repeat(2,minmax(min-content,1fr))]">
+              <div className="flex min-w-min flex-col gap-5 rounded-2xl md:bg-zinc-950/50 md:p-5 md:ring-1 md:ring-white/[0.06]">
                 <RangeSlider
                     id="tvl"
                     label="TVL"
@@ -146,9 +163,9 @@ export function IxsSimulatorView({
                     inputMax={INPUT_MAX_USD}
                     value={tvlUsd}
                     onChange={setTvlUsd}
-                    formatValue={(v) => formatUsdCompact(v)}
                     hint="Total value locked."
                     manualSuffix="USD"
+                    manualNudgeStep={MANUAL_NUDGE_USD_SCENARIO}
                   />
                   <RangeSlider
                     id="mc-tvl-ratio"
@@ -160,12 +177,12 @@ export function IxsSimulatorView({
                     inputMax={INPUT_MAX_MC_TO_TVL_RATIO}
                     value={mcToTvlRatio}
                     onChange={setMcToTvlRatio}
-                    formatValue={(r) => formatNumber(r)}
                     hint="Scenario market cap = this ratio × TVL."
+                    manualNudgeStep={MANUAL_NUDGE_MC_TO_TVL}
                   />
                 </div>
 
-                <div className="flex flex-col gap-5 rounded-2xl md:bg-zinc-950/50 md:p-5 md:ring-1 md:ring-white/[0.06]">
+                <div className="flex min-w-min flex-col gap-5 rounded-2xl md:bg-zinc-950/50 md:p-5 md:ring-1 md:ring-white/[0.06]">
                   <RangeSlider
                     id="burned"
                     label="Burned tokens"
@@ -176,9 +193,9 @@ export function IxsSimulatorView({
                     inputMax={INPUT_MAX_IXS}
                     value={burnedTokens}
                     onChange={setBurnedTokens}
-                    formatValue={(v) => `${formatInteger(v)} IXS`}
                     manualSuffix="IXS"
                     integerOnly
+                    manualNudgeStep={MANUAL_NUDGE_IXS_BURN}
                   />
                   <RangeSlider
                     id="holder"
@@ -190,9 +207,9 @@ export function IxsSimulatorView({
                     inputMax={INPUT_MAX_IXS}
                     value={holderQuantity}
                     onChange={setHolderQuantity}
-                    formatValue={(v) => `${formatNumber(v)} IXS`}
                     hint="Share of circulating is shown in the label."
                     manualSuffix="IXS"
+                    manualNudgeStep={MANUAL_NUDGE_IXS_HOLDER}
                   />
                 </div>
               </div>
@@ -245,6 +262,14 @@ export function IxsSimulatorView({
                     {formatNumber(parsed.result.tvlToMcRatio)}
                   </p>
                 </div>
+              ) : null}
+
+              {simulatorMode === "advanced" ? (
+                <AdvancedFeePanel
+                  scenarioIxsPriceUsd={
+                    parsed.ok ? parsed.result.priceUsd : null
+                  }
+                />
               ) : null}
           </section>
         </div>

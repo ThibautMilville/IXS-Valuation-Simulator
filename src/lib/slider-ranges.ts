@@ -26,3 +26,15 @@ export const INPUT_MAX_USD = Number.MAX_SAFE_INTEGER;
 export const INPUT_MAX_IXS = 180_000_000;
 
 export const INPUT_MAX_MC_TO_TVL_RATIO = 1_000;
+
+export const SLIDER_LAUNCHPAD_FEE_PERCENT = {
+  min: 0,
+  max: 25,
+  step: "any" as const,
+} as const;
+
+export const SLIDER_BTC_YIELD_FEE_PERCENT = {
+  min: 0.5,
+  max: 1,
+  step: "any" as const,
+} as const;

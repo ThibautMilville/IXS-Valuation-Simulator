@@ -119,3 +119,79 @@ export function formatInputBlurred(value: number, integerOnly: boolean): string 
   }
   return formatNumber(value);
 }
+
+const WIDTH_ESTIMATE_CAP_INTEGER = Number.MAX_SAFE_INTEGER;
+const WIDTH_ESTIMATE_CAP_DECIMAL = 1e15;
+
+export function estimateBlurredInputChars(
+  n: number,
+  integerOnly: boolean,
+): number {
+  if (!Number.isFinite(n)) {
+    return 1;
+  }
+  const cap = integerOnly ? WIDTH_ESTIMATE_CAP_INTEGER : WIDTH_ESTIMATE_CAP_DECIMAL;
+  const clamped = Math.min(Math.max(n, -cap), cap);
+  return formatInputBlurred(clamped, integerOnly).length;
+}
+
+function maxIntegerBlurredLenBetween(ai: number, bi: number): number {
+  const span = bi - ai;
+  let m = Math.max(
+    formatInputBlurred(ai, true).length,
+    formatInputBlurred(bi, true).length,
+  );
+  const samples = 400;
+  for (let i = 0; i <= samples; i++) {
+    const v = ai + Math.round((span * i) / samples);
+    m = Math.max(m, formatInputBlurred(v, true).length);
+  }
+  for (let e = 1; e <= 18; e++) {
+    const below = 10 ** e - 1;
+    if (below >= ai && below <= bi) {
+      m = Math.max(m, formatInputBlurred(below, true).length);
+    }
+    const at = 10 ** e;
+    if (at >= ai && at <= bi) {
+      m = Math.max(m, formatInputBlurred(at, true).length);
+    }
+  }
+  return m;
+}
+
+function maxDecimalBlurredLenBetween(cl: number, ch: number): number {
+  let m = Math.max(
+    formatInputBlurred(cl, false).length,
+    formatInputBlurred(ch, false).length,
+  );
+  const steps = 300;
+  for (let i = 0; i <= steps; i++) {
+    const t = cl + ((ch - cl) * i) / steps;
+    const r = Math.round(t * 100) / 100;
+    const v = Math.min(ch, Math.max(cl, r));
+    m = Math.max(m, formatInputBlurred(v, false).length);
+  }
+  return m;
+}
+
+export function maxInputDisplayLenInRange(
+  lo: number,
+  hi: number,
+  integerOnly: boolean,
+): number {
+  if (!Number.isFinite(lo) || !Number.isFinite(hi)) {
+    return 1;
+  }
+  if (integerOnly) {
+    const ai = Math.floor(
+      Math.max(Math.min(lo, hi), -WIDTH_ESTIMATE_CAP_INTEGER),
+    );
+    const bi = Math.floor(
+      Math.min(Math.max(lo, hi), WIDTH_ESTIMATE_CAP_INTEGER),
+    );
+    return maxIntegerBlurredLenBetween(ai, bi);
+  }
+  const cl = Math.max(Math.min(lo, hi), -WIDTH_ESTIMATE_CAP_DECIMAL);
+  const ch = Math.min(Math.max(lo, hi), WIDTH_ESTIMATE_CAP_DECIMAL);
+  return maxDecimalBlurredLenBetween(cl, ch);
+}

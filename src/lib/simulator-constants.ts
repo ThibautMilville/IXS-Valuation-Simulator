@@ -1,0 +1,13 @@
+export const MANUAL_NUDGE_USD_SCENARIO = 1_000_000;
+
+export const MANUAL_NUDGE_USD_FLAT = 100_000;
+
+export const MANUAL_NUDGE_IXS_BURN = 100_000;
+
+export const MANUAL_NUDGE_IXS_HOLDER = 10_000;
+
+export const MANUAL_NUDGE_MC_TO_TVL = 0.05;
+
+export const MANUAL_NUDGE_PERCENT_LAUNCHPAD = 0.25;
+
+export const MANUAL_NUDGE_PERCENT_BTC_FEE = 0.05;

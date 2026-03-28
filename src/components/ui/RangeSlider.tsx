@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useMemo, useState, type ReactNode } from "react";
 import { clamp } from "@/lib/clamp";
 import {
   formatInputBlurred,
   formatInputEditMode,
+  maxInputDisplayLenInRange,
 } from "@/lib/format-numbers";
 import { parseDecimalInput } from "@/lib/parse-decimal-input";
 
@@ -16,12 +17,12 @@ type RangeSliderProps = {
   step: number | "any";
   value: number;
   onChange: (value: number) => void;
-  formatValue: (value: number) => string;
   hint?: string;
   manualSuffix?: string;
   integerOnly?: boolean;
   inputMin?: number;
   inputMax?: number;
+  manualNudgeStep?: number;
   subline?: ReactNode;
 };
 
@@ -33,12 +34,12 @@ export function RangeSlider({
   step,
   value,
   onChange,
-  formatValue,
   hint,
   manualSuffix,
   integerOnly = false,
   inputMin,
   inputMax,
+  manualNudgeStep,
   subline,
 }: RangeSliderProps) {
   const generatedId = useId();
@@ -91,6 +92,47 @@ export function RangeSlider({
   const displayManual =
     draft !== null ? draft : formatInputBlurred(value, integerOnly);
 
+  const defaultNudge =
+    typeof step === "number" ? step : integerOnly ? 1 : 0.01;
+  const nudgeStep = manualNudgeStep ?? defaultNudge;
+
+  const bump = (delta: number) => {
+    const raw = value + delta;
+    if (manualNudgeStep !== undefined && manualNudgeStep > 0) {
+      let next = raw;
+      if (integerOnly) {
+        next = Math.round(next);
+      } else {
+        next = Math.round(next * 100) / 100;
+      }
+      onChange(clamp(next, imin, imax));
+      setDraft(null);
+      return;
+    }
+    const next = integerOnly
+      ? Math.round(raw)
+      : Math.round(raw * 100) / 100;
+    onChange(clamp(next, imin, imax));
+    setDraft(null);
+  };
+
+  const atMin = clamp(Number.isFinite(value) ? value : min, imin, imax) <= imin;
+  const atMax = clamp(Number.isFinite(value) ? value : min, imin, imax) >= imax;
+
+  const inputMinWidthCh = useMemo(() => {
+    const fromRangeBlur = maxInputDisplayLenInRange(imin, imax, integerOnly);
+    const fromEdit = Math.max(
+      formatInputEditMode(imin, integerOnly).length,
+      formatInputEditMode(imax, integerOnly).length,
+      1,
+    );
+    const fromLive = Math.max(
+      displayManual.length,
+      draft !== null ? draft.length : 0,
+    );
+    return Math.max(3, fromRangeBlur, fromEdit, fromLive) + 2;
+  }, [imin, imax, integerOnly, displayManual, draft]);
+
   return (
     <div className="group flex flex-col gap-1.5 sm:gap-2">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
@@ -100,31 +142,60 @@ export function RangeSlider({
         >
           {label}
         </label>
-        <div className="flex w-full min-w-0 max-w-full items-center gap-1.5 sm:max-w-[14rem] sm:justify-end">
-          <input
-            id={manualId}
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            aria-label={`${label} manual value`}
-            value={displayManual}
-            onChange={(e) => handleManualChange(e.target.value)}
-            onFocus={() =>
-              setDraft(formatInputEditMode(value, integerOnly))
-            }
-            onBlur={handleManualBlur}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                (e.target as HTMLInputElement).blur();
+        <div className="flex w-full min-w-min max-w-full shrink-0 justify-end overflow-x-auto sm:ml-auto sm:w-auto">
+          <div
+            className="flex min-h-9 w-max min-w-min shrink-0 rounded-lg border border-zinc-600/80 bg-zinc-950/70 shadow-inner shadow-black/10 transition-[border-color,box-shadow] focus-within:border-[#2564dd]/55 focus-within:ring-1 focus-within:ring-[#2564dd]/30 sm:min-h-10"
+          >
+            <button
+              type="button"
+              aria-label={`Decrease ${label}`}
+              disabled={atMin}
+              onClick={() => bump(-nudgeStep)}
+              className="flex w-9 shrink-0 cursor-pointer items-center justify-center border-r border-zinc-600/80 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+            >
+              −
+            </button>
+            <input
+              id={manualId}
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              aria-label={`${label} manual value`}
+              value={displayManual}
+              onChange={(e) => handleManualChange(e.target.value)}
+              onFocus={() =>
+                setDraft(formatInputEditMode(value, integerOnly))
               }
-            }}
-            className="min-h-9 min-w-0 flex-1 rounded-lg border border-zinc-600/80 bg-zinc-950/70 px-2.5 py-2 text-right font-mono text-xs tabular-nums text-white shadow-inner shadow-black/10 outline-none transition-[border-color,box-shadow] focus:border-[#2564dd]/55 focus:ring-1 focus:ring-[#2564dd]/30 sm:min-h-10 sm:px-3"
-          />
-          {manualSuffix ? (
-            <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-              {manualSuffix}
-            </span>
-          ) : null}
+              onBlur={handleManualBlur}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              style={{
+                minWidth: `${inputMinWidthCh}ch`,
+                fieldSizing: "content",
+              }}
+              className="box-border shrink-0 border-0 bg-transparent px-2 py-2 text-right font-mono text-xs tabular-nums text-white outline-none ring-0 focus:ring-0 sm:px-2.5 [field-sizing:content]"
+            />
+            {manualSuffix ? (
+              <span
+                className="flex shrink-0 items-center border-l border-zinc-600/80 bg-zinc-950/40 px-2.5 text-[10px] font-semibold uppercase tracking-wide text-zinc-500 sm:px-3"
+                aria-hidden
+              >
+                {manualSuffix}
+              </span>
+            ) : null}
+            <button
+              type="button"
+              aria-label={`Increase ${label}`}
+              disabled={atMax}
+              onClick={() => bump(nudgeStep)}
+              className="flex w-9 shrink-0 cursor-pointer items-center justify-center border-l border-zinc-600/80 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-zinc-400"
+            >
+              +
+            </button>
+          </div>
         </div>
       </div>
       <div className="relative flex h-8 w-full items-center">
@@ -158,9 +229,6 @@ export function RangeSlider({
           className="ixs-range relative z-10 h-8 w-full cursor-pointer bg-transparent"
         />
       </div>
-      <p className="font-mono text-[10px] tabular-nums text-zinc-500">
-        {formatValue(value)}
-      </p>
       {subline ? (
         <p className="font-mono text-[10px] leading-relaxed tabular-nums text-zinc-400">
           {subline}
