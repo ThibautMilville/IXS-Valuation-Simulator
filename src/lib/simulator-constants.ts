@@ -6,7 +6,7 @@ export const MANUAL_NUDGE_IXS_BURN = 100_000;
 
 export const MANUAL_NUDGE_IXS_HOLDER = 10_000;
 
-export const MANUAL_NUDGE_MC_TO_TVL = 0.05;
+export const MANUAL_NUDGE_MC_TO_TVL = 0.01;
 
 export const MANUAL_NUDGE_PERCENT_LAUNCHPAD = 0.25;
 

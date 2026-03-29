@@ -4,7 +4,6 @@ import {
   getBurnedSliderConfig,
   INPUT_MAX_IXS,
   INPUT_MAX_MC_TO_TVL_RATIO,
-  INPUT_MAX_USD,
   SLIDER_MC_TO_TVL_RATIO,
   SLIDER_TVL,
 } from "@/lib/slider-ranges";
@@ -34,7 +33,7 @@ export function buildInitialSimulatorSliders(
     );
   }
   return {
-    tvlUsd: clamp(metrics.tvl_usd, SLIDER_TVL.min, INPUT_MAX_USD),
+    tvlUsd: clamp(metrics.tvl_usd, SLIDER_TVL.min, SLIDER_TVL.max),
     mcToTvlRatio,
     burnedTokens: Math.round(
       clamp(metrics.total_tokens_burned, burnedSlider.min, INPUT_MAX_IXS),

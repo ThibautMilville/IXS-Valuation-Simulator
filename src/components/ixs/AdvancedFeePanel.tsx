@@ -234,7 +234,7 @@ export function AdvancedFeePanel({
             max={SLIDER_TVL.max}
             step={SLIDER_TVL.step}
             inputMin={0}
-            inputMax={INPUT_MAX_USD}
+            inputMax={SLIDER_TVL.max}
             value={lpSwapVolumeUsd}
             onChange={setLpSwapVolumeUsd}
             hint="Volume the 1% fee applies to (e.g. monthly)."
@@ -327,7 +327,7 @@ export function AdvancedFeePanel({
             max={SLIDER_TVL.max}
             step={SLIDER_TVL.step}
             inputMin={0}
-            inputMax={INPUT_MAX_USD}
+            inputMax={SLIDER_TVL.max}
             value={launchpadRaisedUsd}
             onChange={setLaunchpadRaisedUsd}
             manualSuffix="USD"
@@ -387,7 +387,7 @@ export function AdvancedFeePanel({
             max={SLIDER_TVL.max}
             step={SLIDER_TVL.step}
             inputMin={0}
-            inputMax={INPUT_MAX_USD}
+            inputMax={SLIDER_TVL.max}
             value={btcBorrowUsd}
             onChange={setBtcBorrowUsd}
             manualSuffix="USD"

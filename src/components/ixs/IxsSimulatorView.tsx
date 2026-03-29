@@ -7,7 +7,6 @@ import {
   getBurnedSliderConfig,
   INPUT_MAX_IXS,
   INPUT_MAX_MC_TO_TVL_RATIO,
-  INPUT_MAX_USD,
   SLIDER_HOLDER,
   SLIDER_MC_TO_TVL_RATIO,
   SLIDER_TVL,
@@ -153,7 +152,7 @@ export function IxsSimulatorView({
                     max={SLIDER_TVL.max}
                     step={SLIDER_TVL.step}
                     inputMin={0}
-                    inputMax={INPUT_MAX_USD}
+                    inputMax={SLIDER_TVL.max}
                     value={tvlUsd}
                     onChange={setTvlUsd}
                     hint="Total value locked."
