@@ -21,6 +21,7 @@ import {
   formatInteger,
   formatNumber,
   formatPercent,
+  formatPriceMultiplier,
   formatUsd,
   formatUsdCompact,
   formatUsdPrice,
@@ -79,6 +80,14 @@ export function IxsSimulatorView({
     return `Holder balance (${formatPercent(pct, 2)})`;
   }, [totalSupply, burnedTokens, holderQuantity]);
 
+  const currentPriceUsd = useMemo(() => {
+    if (metrics.circulating_supply <= 0) {
+      return null;
+    }
+    const price = initialMarketCapUsd / metrics.circulating_supply;
+    return Number.isFinite(price) && price > 0 ? price : null;
+  }, [initialMarketCapUsd, metrics.circulating_supply]);
+
   const parsed = useMemo(() => {
     const result = computeIxsSimulation({
       tvlUsd,
@@ -92,6 +101,13 @@ export function IxsSimulatorView({
     }
     return { ok: true as const, result };
   }, [tvlUsd, mcToTvlRatio, burnedTokens, holderQuantity, totalSupply]);
+
+  const priceMultiplier = useMemo(() => {
+    if (!parsed.ok || currentPriceUsd === null) {
+      return null;
+    }
+    return parsed.result.priceUsd / currentPriceUsd;
+  }, [parsed, currentPriceUsd]);
 
   const errorMessage =
     parsed.ok === false && parsed.error === "supply"
@@ -260,6 +276,17 @@ export function IxsSimulatorView({
                     </span>{" "}
                     implied
                   </p>
+                  {priceMultiplier !== null && currentPriceUsd !== null ? (
+                    <p className="mt-2 text-center text-sm text-zinc-400">
+                      <span className="font-mono font-medium text-[#93b4f0]">
+                        {formatPriceMultiplier(priceMultiplier)}
+                      </span>{" "}
+                      vs current price{" "}
+                      <span className="font-mono text-zinc-300">
+                        {formatUsdPrice(currentPriceUsd)}
+                      </span>
+                    </p>
+                  ) : null}
                   <p className="mt-3 text-center text-[11px] leading-relaxed tabular-nums text-zinc-500 sm:text-xs">
                     TVL {formatUsdCompact(parsed.result.tvlUsd)} · scenario MC{" "}
                     {formatUsdCompact(parsed.result.marketCapUsd)} · MC/TVL{" "}

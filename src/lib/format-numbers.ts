@@ -88,6 +88,20 @@ export function formatInteger(value: number): string {
   return addCommas(String(Math.round(value)));
 }
 
+export function formatPriceMultiplier(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) {
+    return "—";
+  }
+  const rounded =
+    value >= 10
+      ? Math.round(value * 10) / 10
+      : value >= 1
+        ? Math.round(value * 100) / 100
+        : Math.round(value * 1000) / 1000;
+  const s = rounded.toFixed(3).replace(/\.?0+$/, "");
+  return `${s}×`;
+}
+
 export function formatPercent(value: number, fractionDigits = 2): string {
   if (!Number.isFinite(value)) {
     return "0%";
